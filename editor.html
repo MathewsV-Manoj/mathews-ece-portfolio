@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Editor — Mathews V Manoj</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f6f8;color:#1a1a2e;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding:20px}
+header{background:#1a1a2e;color:#fff;padding:28px 24px;border-radius:12px;margin-bottom:28px;text-align:center}
+header h1{font-size:24px;font-weight:700}
+header p{color:#aab;font-size:14px;margin-top:6px}
+.steps{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.step{background:rgba(76,141,255,.15);color:#7aadff;padding:6px 16px;border-radius:100px;font-size:13px;font-weight:600}
+
+.section{background:#fff;border:1px solid #e2e5ea;border-radius:12px;margin-bottom:22px;overflow:hidden}
+.sec-header{padding:18px 22px;background:#fafbfc;border-bottom:1px solid #e2e5ea;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+.sec-header h2{font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
+.sec-header h2::before{content:'';width:10px;height:10px;border-radius:3px;background:#4C8DFF}
+.sec-header .toggle{font-size:20px;color:#888;transition:transform .2s}
+.sec-header.open .toggle{transform:rotate(180deg)}
+.sec-body{padding:22px;display:none}
+.sec-body.open{display:block}
+
+label{display:block;font-size:13px;font-weight:600;color:#555;margin-bottom:5px;margin-top:16px}
+label:first-child{margin-top:0}
+input[type="text"],input[type="url"],input[type="email"],textarea{
+  width:100%;padding:11px 14px;border:1px solid #dde1e7;border-radius:8px;font-size:15px;
+  font-family:inherit;background:#fafbfc;transition:border-color .2s;outline:none;
+}
+input:focus,textarea:focus{border-color:#4C8DFF;background:#fff}
+textarea{resize:vertical;min-height:80px}
+.help{font-size:12px;color:#888;margin-top:3px}
+
+.item-card{border:1px solid #e2e5ea;border-radius:10px;padding:18px;margin-bottom:14px;background:#fafbfc;position:relative}
+.item-card .item-num{position:absolute;top:10px;left:14px;font-size:11px;font-weight:700;color:#4C8DFF;background:rgba(76,141,255,.1);padding:3px 8px;border-radius:5px}
+.item-card .item-actions{position:absolute;top:10px;right:10px;display:flex;gap:6px}
+.item-card .item-actions button{background:none;border:1px solid #dde;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;color:#666;transition:all .15s}
+.item-card .item-actions button:hover{background:#fee;border-color:#e88;color:#c44}
+.item-card .item-actions .move-up:hover,.item-card .item-actions .move-down:hover{background:#eef;border-color:#88c;color:#44c}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+
+.add-btn{display:inline-flex;align-items:center;gap:8px;background:#4C8DFF;color:#fff;border:none;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;transition:background .2s}
+.add-btn:hover{background:#3a7ae8}
+
+.tag-input{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border:1px solid #dde1e7;border-radius:8px;background:#fafbfc;min-height:42px;cursor:text}
+.tag-input .tag-item{background:#4C8DFF;color:#fff;padding:4px 10px;border-radius:5px;font-size:13px;display:flex;align-items:center;gap:5px}
+.tag-item .remove{cursor:pointer;font-size:15px;opacity:.7}
+.tag-item .remove:hover{opacity:1}
+.tag-input input{border:none;outline:none;background:transparent;font-size:14px;flex:1;min-width:120px;padding:4px}
+
+.export-bar{position:sticky;bottom:0;background:#1a1a2e;padding:18px 24px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;z-index:50}
+.export-bar p{color:#aab;font-size:13px}
+.export-btn{background:#4C8DFF;color:#fff;border:none;padding:14px 36px;border-radius:9px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
+.export-btn:hover{background:#3a7ae8;transform:translateY(-2px);box-shadow:0 6px 20px rgba(76,141,255,.4)}
+.load-btn{background:transparent;color:#7aadff;border:1px solid #7aadff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.load-btn:hover{background:rgba(76,141,255,.1)}
+
+.bio-p{margin-bottom:10px}
+.bio-p textarea{min-height:60px}
+
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.checkbox-row input[type="checkbox"]{width:18px;height:18px;accent-color:#4C8DFF}
+.checkbox-row label{margin:0;font-size:14px}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>📝 Portfolio Editor</h1>
+  <p>Fill in the forms below, then click <strong>Download data.js</strong>. Replace the old file and push to GitHub.</p>
+  <div class="steps">
+    <span class="step">1. Fill forms</span>
+    <span class="step">2. Download data.js</span>
+    <span class="step">3. Replace old file</span>
+    <span class="step">4. Push to GitHub</span>
+  </div>
+</header>
+
+<!-- PERSONAL INFO -->
+<div class="section">
+  <div class="sec-header open" onclick="toggleSec(this)"><h2>Personal Info</h2><span class="toggle">▼</span></div>
+  <div class="sec-body open">
+    <div class="row">
+      <div><label>Full Name</label><input type="text" id="f_name" value="Mathews V Manoj"></div>
+      <div><label>Profile Photo Filename</label><input type="text" id="f_photo" value="profile.jpg"><div class="help">Place this file next to index.html</div></div>
+    </div>
+    <label>Hero Tagline (the big text on the homepage)</label>
+    <input type="text" id="f_tagline" value="Engineering hardware for defense & aerospace — from antennas to FPGAs.">
+    <label>Status Badge (e.g., your current role)</label>
+    <input type="text" id="f_status" value="Research Intern @ DRDO — DLRL, Hyderabad">
+    <label>Keywords (shown below the tagline)</label>
+    <input type="text" id="f_keywords" value="RF · FPGA · Defense Electronics">
+    <div class="row">
+      <div><label>Email</label><input type="email" id="f_email" value="mathewvmanoj8@gmail.com"></div>
+      <div><label>Phone</label><input type="text" id="f_phone" value="+91 91883 68960"></div>
+    </div>
+    <div class="row">
+      <div><label>LinkedIn URL</label><input type="url" id="f_linkedin" value="https://linkedin.com/in/mathews-v-manoj"></div>
+      <div><label>Resume Filename</label><input type="text" id="f_resume" value="resume.pdf"><div class="help">Place this file next to index.html</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BIO -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>About / Bio Paragraphs</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="bioArea">
+    <div class="help" style="margin-bottom:12px">Each box = one paragraph on the About section. Use &lt;strong&gt;bold text&lt;/strong&gt; for emphasis.</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Hero Stats (the 4 counters)</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="statsArea"></div>
+</div>
+
+<!-- HIGHLIGHTS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>About Highlights (the 3 cards)</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="hlArea"></div>
+</div>
+
+<!-- EXPERIENCE -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Experience</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="expArea"></div>
+</div>
+
+<!-- PROJECTS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Projects</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="projArea">
+    <div class="help" style="margin-bottom:12px">Order here = order on site. First project = top-left. Move items up/down to reorder.</div>
+  </div>
+</div>
+
+<!-- COMPETITIONS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Competitions</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="compArea"></div>
+</div>
+
+<!-- ACHIEVEMENTS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Achievements</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="achArea"></div>
+</div>
+
+<!-- POSITIONS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Positions of Responsibility</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="posArea"></div>
+</div>
+
+<!-- VOLUNTEERING -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Volunteering</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="volArea"></div>
+</div>
+
+<!-- CERTIFICATIONS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Certifications</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="certArea"></div>
+</div>
+
+<!-- SKILLS -->
+<div class="section">
+  <div class="sec-header" onclick="toggleSec(this)"><h2>Skills</h2><span class="toggle">▼</span></div>
+  <div class="sec-body" id="skillArea"></div>
+</div>
+
+<div class="export-bar">
+  <div>
+    <p>When done, download and replace your old <code>data.js</code></p>
+    <label for="loadFile" class="load-btn" style="display:inline-block;margin-top:6px">Load existing data.js</label>
+    <input type="file" id="loadFile" accept=".js" style="display:none" onchange="loadExisting(this)">
+  </div>
+  <button class="export-btn" onclick="exportData()">⬇ Download data.js</button>
+</div>
+
+</div>
+
+<script>
+/* ========== Toggle sections ========== */
+function toggleSec(header){
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+/* ========== Generic list manager ========== */
+function listManager(containerId, fields, defaults){
+  var items = [];
+  var container = document.getElementById(containerId);
+
+  function render(){
+    var html = '';
+    items.forEach(function(item, i){
+      html += '<div class="item-card" style="padding-top:36px"><span class="item-num">#'+(i+1)+'</span>';
+      html += '<div class="item-actions">';
+      if(i > 0) html += '<button class="move-up" onclick="'+containerId+'_mgr.move('+i+',-1)">▲</button>';
+      if(i < items.length-1) html += '<button class="move-down" onclick="'+containerId+'_mgr.move('+i+',1)">▼</button>';
+      html += '<button onclick="'+containerId+'_mgr.remove('+i+')">✕ Remove</button></div>';
+
+      fields.forEach(function(f){
+        html += '<label>'+f.label+'</label>';
+        if(f.type === 'textarea'){
+          html += '<textarea onchange="'+containerId+'_mgr.set('+i+',\''+f.key+'\',this.value)">'+esc(item[f.key]||'')+'</textarea>';
+        } else if(f.type === 'checkbox'){
+          html += '<div class="checkbox-row"><input type="checkbox" '+(item[f.key]?'checked':'')+' onchange="'+containerId+'_mgr.set('+i+',\''+f.key+'\',this.checked)"><label>'+f.checkLabel+'</label></div>';
+        } else if(f.type === 'tags'){
+          html += '<div class="tag-input" onclick="this.querySelector(\'input\').focus()">';
+          (item[f.key]||[]).forEach(function(t,ti){
+            html += '<span class="tag-item">'+esc(t)+'<span class="remove" onclick="'+containerId+'_mgr.removeTag('+i+',\''+f.key+'\','+ti+')">×</span></span>';
+          });
+          html += '<input type="text" placeholder="Type and press Enter" onkeydown="if(event.key===\'Enter\'){event.preventDefault();'+containerId+'_mgr.addTag('+i+',\''+f.key+'\',this.value);this.value=\'\';}">';
+          html += '</div>';
+          if(f.help) html += '<div class="help">'+f.help+'</div>';
+        } else {
+          var wrapper = f.row ? '<div class="row">' : '';
+          html += '<input type="text" value="'+esc(item[f.key]||'')+'" onchange="'+containerId+'_mgr.set('+i+',\''+f.key+'\',this.value)">';
+          if(f.help) html += '<div class="help">'+f.help+'</div>';
+        }
+      });
+      html += '</div>';
+    });
+    html += '<button class="add-btn" onclick="'+containerId+'_mgr.add()">＋ Add New</button>';
+    container.innerHTML = html;
+  }
+
+  var mgr = {
+    items: items,
+    add: function(data){
+      var obj = {};
+      fields.forEach(function(f){ obj[f.key] = f.type==='tags'?[]:(f.type==='checkbox'?false:''); });
+      if(data) Object.assign(obj, data);
+      items.push(obj); render();
+    },
+    remove: function(i){ items.splice(i,1); render(); },
+    set: function(i,k,v){ items[i][k]=v; },
+    move: function(i,dir){ var j=i+dir; if(j<0||j>=items.length)return; var tmp=items[i];items[i]=items[j];items[j]=tmp; render(); },
+    addTag: function(i,k,v){ v=v.trim(); if(!v)return; if(!items[i][k])items[i][k]=[]; items[i][k].push(v); render(); },
+    removeTag: function(i,k,ti){ items[i][k].splice(ti,1); render(); },
+    load: function(arr){ items.length=0; arr.forEach(function(d){ items.push(d); }); render(); },
+    render: render,
+  };
+  window[containerId+'_mgr'] = mgr;
+  return mgr;
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ========== Initialize all sections ========== */
+
+// Bio paragraphs
+var bioMgr = listManager('bioArea', [
+  {key:'text', label:'Paragraph', type:'textarea'},
+], {});
+
+// Stats
+var statsMgr = listManager('statsArea', [
+  {key:'number', label:'Number (e.g., 9.33 or 12)', type:'text'},
+  {key:'suffix', label:'Suffix (e.g., /10 or +, leave empty if none)', type:'text'},
+  {key:'label', label:'Label (e.g., CGPA or Projects Built)', type:'text'},
+], {});
+
+// Highlights
+var hlMgr = listManager('hlArea', [
+  {key:'title', label:'Title', type:'text'},
+  {key:'sub', label:'Subtitle', type:'text'},
+], {});
+
+// Experience
+var expMgr = listManager('expArea', [
+  {key:'role', label:'Role / Title', type:'text'},
+  {key:'org', label:'Organization (full name)', type:'text'},
+  {key:'date', label:'Date (e.g., Jun 2026 — Present)', type:'text'},
+  {key:'text', label:'Description (for a paragraph-style entry)', type:'textarea'},
+  {key:'pointsText', label:'Bullet Points (one per line — for bullet-style entry, leave Description empty)', type:'textarea', help:'Write one bullet point per line. These become the bullet list.'},
+], {});
+
+// Projects
+var projMgr = listManager('projArea', [
+  {key:'image', label:'Image Filename (goes inside images/ folder)', type:'text', help:'e.g., antenna.jpg → saves as images/antenna.jpg'},
+  {key:'badge', label:'Badge (shown on the image corner)', type:'text', help:'e.g., DRDO · DLRL or DVCon India \'26'},
+  {key:'category', label:'Category', type:'text', help:'e.g., RF / Electromagnetics or FPGA × AI'},
+  {key:'title', label:'Project Title', type:'text'},
+  {key:'desc', label:'Description', type:'textarea'},
+  {key:'tags', label:'Tech Tags', type:'tags', help:'Type a tag and press Enter. e.g., Verilog, then Enter, FPGA, then Enter...'},
+], {});
+
+// Competitions
+var compMgr = listManager('compArea', [
+  {key:'year', label:'Year', type:'text'},
+  {key:'name', label:'Competition Name', type:'text'},
+  {key:'sub', label:'Details / Project Name', type:'text'},
+  {key:'result', label:'Result (e.g., Stage 1 Cleared, Participant)', type:'text'},
+  {key:'hit', label:'Highlight this result?', type:'checkbox', checkLabel:'Yes, highlight in blue (for actual placements)'},
+], {});
+
+// Achievements
+var achMgr = listManager('achArea', [
+  {key:'title', label:'Achievement', type:'text'},
+  {key:'sub', label:'Details', type:'text'},
+], {});
+
+// Positions
+var posMgr = listManager('posArea', [
+  {key:'title', label:'Position Title', type:'text'},
+  {key:'sub', label:'Details / Date', type:'text'},
+], {});
+
+// Volunteering
+var volMgr = listManager('volArea', [
+  {key:'title', label:'Role', type:'text'},
+  {key:'sub', label:'Details', type:'text'},
+], {});
+
+// Certifications
+var certMgr = listManager('certArea', [
+  {key:'title', label:'Certificate Name + Platform', type:'text'},
+  {key:'sub', label:'Issuer + Date', type:'text'},
+  {key:'icon', label:'Icon Letter (first letter of platform, e.g., N for NPTEL)', type:'text'},
+], {});
+
+// Skills
+var skillMgr = listManager('skillArea', [
+  {key:'group', label:'Skill Group Name (e.g., RF & Electromagnetics)', type:'text'},
+  {key:'items', label:'Skills in this group', type:'tags', help:'Type a skill and press Enter'},
+], {});
+
+
+/* ========== Load defaults ========== */
+function loadDefaults(){
+  // Bio
+  bioMgr.load([
+    {text:'I\'m a second-year Electronics & Communication Engineering student at <strong>Muthoot Institute of Technology and Science (KTU)</strong> with a CGPA of 9.33, currently a research intern at <strong>DRDO\'s Defence Electronics Research Laboratory (DLRL), Hyderabad</strong>, working on broadband airborne EW antenna design.'},
+    {text:'My work spans <strong>RF/electromagnetics</strong> (full-wave simulation in CST Studio Suite), <strong>digital design</strong> (Verilog on Kintex-7 and Zynq FPGAs, RISC-V integration) and <strong>embedded systems</strong>. I\'m also the founder of <strong>Focuno</strong>, an AI productivity startup, and coordinate the Mathematics Club at MITS.'},
+    {text:'The long-term plan: <strong>GATE 2027, an M.Tech from a top institute, and building in India\'s defense-tech ecosystem</strong>.'},
+  ]);
+
+  // Stats
+  statsMgr.load([
+    {number:'9.33',suffix:'/10',label:'CGPA'},
+    {number:'12',suffix:'+',label:'Projects Built'},
+    {number:'9',suffix:'',label:'Competitions'},
+    {number:'6',suffix:'',label:'Certifications'},
+  ]);
+
+  // Highlights
+  hlMgr.load([
+    {title:'DRDO · DLRL',sub:'Current research internship'},
+    {title:'DVCon \'26',sub:'IEEE Stage 1 cleared'},
+    {title:'e-Yantra',sub:'Regional finalist, IIT Bombay'},
+  ]);
+
+  // Experience
+  expMgr.load([
+    {role:'Research Intern',org:'DRDO — Defence Electronics Research Laboratory (DLRL), Hyderabad',date:'Jun 2026 — Present',text:'',pointsText:'Designing a broadband blade monopole antenna (20–2500 MHz) for an airborne EW receive direction-finding system.\nFull-wave simulation campaign in CST Studio Suite: resistive loading, capacitive top-loading and taper optimization against Bode–Fano / Chu physical limits.\nDeliverable pipeline targets fabricated prototypes and environmental stress screening (ESS) qualification.'},
+    {role:'Intern',org:'Indian Institute of Space Science and Technology (IIST) — IEEE Program',date:'2026 · Hybrid, Thiruvananthapuram',text:'Selected for the IIST IEEE hybrid internship — space-technology oriented engineering exposure alongside the DLRL engagement.',pointsText:''},
+    {role:'Intern',org:'National Institute of Technology Calicut (NITC) — Summer Internship Program',date:'2026',text:'Selected for the NIT Calicut Summer Internship Program in ECE research.',pointsText:''},
+    {role:'Founder',org:'Focuno — AI Productivity Startup',date:'2026 — Present',text:'Building Focuno, an early-stage AI-powered productivity product — product, engineering and everything between.',pointsText:''},
+  ]);
+
+  // Projects
+  projMgr.load([
+    {image:'antenna.jpg',badge:'DRDO · DLRL',category:'RF / Electromagnetics',title:'Broadband Blade Monopole Antenna (20–2500 MHz)',desc:'Broadband blade monopole for airborne EW receive and direction-finding — a 125:1 bandwidth target pushing against Bode–Fano and Chu limits. Monotonic-taper blade with capacitive top-loading and resistive profiling; VSWR < 2 with positive realized gain across the passive band in CST, plus a diplexed active low-band path studied in LTspice.',tags:['CST Studio Suite','VSWR / S11','LTspice','EW / DF']},
+    {image:'tacre.jpg',badge:'DVCon India \'26 · Stage 1',category:'FPGA × AI',title:'TACRE — Task-Aware Object Ranking Engine',desc:'FPGA-accelerated system that ranks detected objects by task relevance in real time: YOLOv8-nano detection and a DistilBERT-tiny task encoder feed a custom Verilog ranking accelerator over AXI4-Stream DMA, alongside a VEGA RISC-V core on a Genesys-2 (Kintex-7). Cleared Stage 1 of the IEEE DVCon India 2026 design contest.',tags:['Verilog','Kintex-7','RISC-V','AXI4-Stream','YOLOv8']},
+    {image:'lunar-ice.jpg',badge:'ISRO BAH 2026',category:'SAR Polarimetry',title:'Lunar South-Pole Ice Detection',desc:'Team Dakshin Radars proposal for ISRO\'s Bharatiya Antariksh Hackathon: detecting water ice in permanently shadowed lunar craters via Mini-RF radar polarimetry. Built a working CPR/DOP processing pipeline on real NASA Mini-RF PDS3 data, computing a mean CPR of 0.326 over the study region.',tags:['Python','SAR','CPR / DOP','NASA PDS3']},
+    {image:'spoilage.jpg',badge:'e-Yantra · Regional Finalist',category:'IoT × Computer Vision',title:'Spoilage Detection & Prevention System',desc:'Multi-sensor system tackling post-harvest food spoilage: ESP32-CAM computer vision analyzes visual ripeness while a BME688 tracks VOC changes during ripening. Both signals fuse in a PRSL (Predicted Ripeness & Shelf Life) model streaming to a Python server for real-time alerts.',tags:['ESP32-CAM','BME688','Sensor Fusion','Python']},
+    {image:'sentinel.jpg',badge:'Self-Hosted',category:'Full-Stack × Embedded',title:'SENTINEL v2 — Device Tracking System',desc:'Self-hosted device monitoring platform: FastAPI + SQLite backend with a heartbeat protocol, remote command queue and location history; a Termux-based Android agent; and a live web dashboard with Leaflet mapping.',tags:['FastAPI','SQLite','Termux','Leaflet']},
+    {image:'hazard-fpga.jpg',badge:'ZedBoard',category:'Digital Design — FPGA',title:'Hazard & Fault Detection System',desc:'How digital circuits misbehave in the real world: stuck-at fault detection (A·B stuck-at-0) using test vectors, hazard analysis of F = AB + A\'C under unequal path delays, the observed 1→0→1 glitch waveform, and validation on a ZedBoard (Zynq-7000).',tags:['Verilog','Stuck-at Model','Timing Analysis','Vivado']},
+    {image:'vigillift.jpg',badge:'MYOSA 5.0',category:'IoT — Safety Systems',title:'VigilLift — Elevator Emergency & Safety System',desc:'IoT-based smart elevator safety monitor built on the MYOSA development board (ESP32): detects free fall, sudden stops and abnormal vibration using multiple sensors, with real-time alerts and live monitoring.',tags:['ESP32','MYOSA','IMU / Vibration','IoT Alerts']},
+    {image:'curvesafe.jpg',badge:'Techxcel 2.0',category:'Embedded — Road Safety',title:'CurveSafe',desc:'Road-safety system aimed at reducing the probability of collision on hairpin curves — developed as a startup concept for Techxcel 2.0, MITS\'s college-level startup challenge.',tags:['Embedded','Sensors','Road Safety']},
+    {image:'fpga-clock.jpg',badge:'FPGA',category:'Digital Design — FPGA',title:'Digital Clock — FPGA + OLED',desc:'Digital clock designed and implemented in Verilog on an FPGA, integrated with an OLED display for real-time visualization — clock division, counter chains and display interfacing done entirely in hardware.',tags:['Verilog','FPGA','OLED / SPI']},
+    {image:'robot.jpg',badge:'Arduino',category:'Embedded — Autonomy',title:'Obstacle-Avoiding Robot (270° Awareness)',desc:'Autonomous navigation robot: HC-SR04 on an SG90 servo for 270° FOV with 5-point path analysis, L298N PWM drive, sub-500 ms decision-making, a three-level safety threshold system (45/20/15 cm) and memory-optimized Arduino firmware.',tags:['Arduino','HC-SR04','L298N','PWM']},
+    {image:'markov.jpg',badge:'Python',category:'Predictive Maintenance',title:'Machine Health Prediction — Markov Chains',desc:'Models machine degradation as a Markov process (Healthy → Wear → Warning → Critical → Failure) with transition-matrix probability tracking and four analytical plots: health state evolution, failure probability, system reliability, and a health index.',tags:['Python','Markov Chains','Matplotlib']},
+    {image:'insta-cleaner.jpg',badge:'Automation',category:'Python — Automation',title:'Instagram Like Cleaner (API)',desc:'Python automation tool that detects liked reels and posts via Instagram\'s API and safely removes them — human-like delays, retry and rate-limit handling, progress tracking, and automatic resume after interruptions.',tags:['Python','REST API','Rate Limiting']},
+  ]);
+
+  // Competitions
+  compMgr.load([
+    {year:'2026',name:'IEEE DVCon India 2026 — Design Contest',sub:'FPGA-based object detection & ranking (TACRE)',result:'Stage 1 Cleared',hit:true},
+    {year:'2025-26',name:'e-Yantra Innovation Challenge — IIT Bombay',sub:'Spoilage detection & prevention system',result:'Regional Finalist',hit:true},
+    {year:'2025',name:'National Road Safety Hackathon',sub:'Road safety systems track',result:'Stage 2 of 4',hit:true},
+    {year:'2026',name:'Bharatiya Antariksh Hackathon — ISRO',sub:'Lunar south-pole ice detection (Team Dakshin Radars)',result:'Proposal Submitted',hit:false},
+    {year:'2025',name:'Smart India Hackathon',sub:'National-level innovation challenge',result:'Participant',hit:false},
+    {year:'2026',name:'Open Silicon Bootcamp',sub:'Open-source silicon design',result:'Participant',hit:false},
+    {year:'2025',name:'MYOSA 5.0',sub:'VigilLift — elevator safety system',result:'Participant',hit:false},
+    {year:'—',name:'TechExpo — IIT Guwahati',sub:'Technology exhibition',result:'Participant',hit:false},
+    {year:'—',name:'Techxcel 2.0 — MITS',sub:'CurveSafe — college startup challenge',result:'Participant',hit:false},
+  ]);
+
+  // Achievements
+  achMgr.load([
+    {title:'IEEE DVCon India 2026 — Stage 1 Cleared',sub:'FPGA-based object detection project (TACRE)'},
+    {title:'Research Internship — DRDO DLRL',sub:'Defence Electronics Research Laboratory, Hyderabad'},
+    {title:'Internship — Indian Institute of Space Science and Technology',sub:'IIST IEEE hybrid internship program'},
+    {title:'Internship — National Institute of Technology Calicut',sub:'NITC Summer Internship Program'},
+    {title:'e-Yantra Innovation Challenge — Regional Finalist',sub:'Coimbatore & Bangalore region · IIT Bombay'},
+    {title:'National Road Safety Hackathon — Stage 2 of 4',sub:'National-level selection'},
+  ]);
+
+  // Positions
+  posMgr.load([
+    {title:'Founder — Focuno',sub:'AI productivity startup · 2026 — present'},
+    {title:'Mathematics Club Coordinator — MITS',sub:'2025 — 2026'},
+  ]);
+
+  // Volunteering
+  volMgr.load([
+    {title:'Design Subcommittee — IEEE SB MITS',sub:'Student branch design team'},
+    {title:'Certificate Subcommittee — IEEE SB MITS',sub:'Event certification workflow'},
+    {title:'Design Team — IEEE RAICS',sub:'Recent Advances in Intelligent Computational Systems'},
+  ]);
+
+  // Certifications
+  certMgr.load([
+    {title:'Microsensors and Nanosensors — NPTEL',sub:'IIT Guwahati · Nov 2025 · Elite',icon:'N'},
+    {title:'Robotics — NPTEL',sub:'IIT Kharagpur · Nov 2025 · Elite',icon:'N'},
+    {title:'EV — Vehicle Dynamics & Electric Motor Drives — NPTEL',sub:'May 2025',icon:'N'},
+    {title:'Embedded Systems — NIELIT Calicut',sub:'National Institute of Electronics and IT · Jun 2025',icon:'E'},
+    {title:'Python — NIELIT Calicut',sub:'National Institute of Electronics and IT · Jun 2025',icon:'P'},
+    {title:'Digital 101 (30 Hours) — NASSCOM',sub:'May 2025',icon:'D'},
+  ]);
+
+  // Skills
+  skillMgr.load([
+    {group:'RF & Electromagnetics',items:['CST Studio Suite','Antenna Design','S-Parameters / VSWR','Impedance Matching','LTspice']},
+    {group:'Digital & FPGA',items:['Verilog','VHDL','Vivado','ZedBoard','Genesys-2','RISC-V','AXI4']},
+    {group:'Embedded Systems',items:['Embedded C','8051','ESP32 / ESP32-CAM','Arduino','UART / I2C / SPI','MYOSA']},
+    {group:'Software & ML',items:['Python','NumPy / Pandas','YOLOv8','FastAPI','REST APIs','C']},
+  ]);
+}
+
+loadDefaults();
+
+
+/* ========== EXPORT data.js ========== */
+function collectData(){
+  var d = {};
+
+  // Simple fields
+  d.name = document.getElementById('f_name').value;
+  d.photo = document.getElementById('f_photo').value;
+  d.tagline = document.getElementById('f_tagline').value;
+  d.status = document.getElementById('f_status').value;
+  d.keywords = document.getElementById('f_keywords').value;
+  d.email = document.getElementById('f_email').value;
+  d.phone = document.getElementById('f_phone').value;
+  d.linkedin = document.getElementById('f_linkedin').value;
+  d.resume = document.getElementById('f_resume').value;
+
+  // Bio
+  d.bio = bioArea_mgr.items.map(function(b){ return b.text; });
+
+  // Stats
+  d.stats = statsArea_mgr.items;
+
+  // Highlights
+  d.highlights = hlArea_mgr.items;
+
+  // Experience — convert pointsText to points array
+  d.experience = expArea_mgr.items.map(function(e){
+    var obj = {role:e.role, org:e.org, date:e.date};
+    if(e.pointsText && e.pointsText.trim()){
+      obj.points = e.pointsText.split('\n').filter(function(l){return l.trim();});
+    } else {
+      obj.text = e.text||'';
+    }
+    return obj;
+  });
+
+  // Projects
+  d.projects = projArea_mgr.items.map(function(p){
+    return {image:p.image,badge:p.badge,category:p.category,title:p.title,desc:p.desc,tags:p.tags||[]};
+  });
+
+  d.competitions = compArea_mgr.items;
+  d.achievements = achArea_mgr.items;
+  d.positions = posArea_mgr.items;
+  d.volunteering = volArea_mgr.items;
+  d.certifications = certArea_mgr.items;
+  d.skills = skillArea_mgr.items.map(function(s){ return {group:s.group, items:s.items||[]}; });
+
+  return d;
+}
+
+function exportData(){
+  var d = collectData();
+  // Generate file content
+  var content = 'const SITE = ' + JSON.stringify(d, null, 2) + ';\n';
+
+  // Download
+  var blob = new Blob([content], {type:'text/javascript'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'data.js';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ========== Browser draft (no upload, stays on this computer) ========== */
+var DRAFT_KEY = 'mathews-portfolio-editor-draft-v2';
+
+function setDraftStatus(message, saved){
+  var el = document.getElementById('draftStatus');
+  if(!el) return;
+  el.textContent = message;
+  el.className = saved ? 'progress-note saved' : 'progress-note';
+}
+
+function saveDraft(){
+  try{
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({savedAt:new Date().toLocaleString(), data:collectData()}));
+    setDraftStatus('✓ Draft saved on this browser. You can safely come back later.', true);
+  }catch(err){ alert('Could not save the draft: '+err.message); }
+}
+
+function fillEditor(d){
+  if(d.name !== undefined) document.getElementById('f_name').value = d.name;
+  if(d.photo !== undefined) document.getElementById('f_photo').value = d.photo;
+  if(d.tagline !== undefined) document.getElementById('f_tagline').value = d.tagline;
+  if(d.status !== undefined) document.getElementById('f_status').value = d.status;
+  if(d.keywords !== undefined) document.getElementById('f_keywords').value = d.keywords;
+  if(d.email !== undefined) document.getElementById('f_email').value = d.email;
+  if(d.phone !== undefined) document.getElementById('f_phone').value = d.phone;
+  if(d.linkedin !== undefined) document.getElementById('f_linkedin').value = d.linkedin;
+  if(d.resume !== undefined) document.getElementById('f_resume').value = d.resume;
+  if(d.bio) bioArea_mgr.load(d.bio.map(function(t){return{text:t};}));
+  if(d.stats) statsArea_mgr.load(d.stats);
+  if(d.highlights) hlArea_mgr.load(d.highlights);
+  if(d.experience) expArea_mgr.load(d.experience.map(function(ex){return {role:ex.role||'',org:ex.org||'',date:ex.date||'',text:ex.text||'',pointsText:(ex.points||[]).join('\n')};}));
+  if(d.projects) projArea_mgr.load(d.projects);
+  if(d.competitions) compArea_mgr.load(d.competitions);
+  if(d.achievements) achArea_mgr.load(d.achievements);
+  if(d.positions) posArea_mgr.load(d.positions);
+  if(d.volunteering) volArea_mgr.load(d.volunteering);
+  if(d.certifications) certArea_mgr.load(d.certifications);
+  if(d.skills) skillArea_mgr.load(d.skills);
+}
+
+function restoreDraft(){
+  try{
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if(!raw){ setDraftStatus('No saved draft was found on this browser.', false); return; }
+    var draft = JSON.parse(raw);
+    fillEditor(draft.data || draft);
+    setDraftStatus('✓ Restored the draft saved '+(draft.savedAt || 'earlier')+'.', true);
+  }catch(err){ alert('Could not restore the draft: '+err.message); }
+}
+
+
+/* ========== LOAD existing data.js ========== */
+function loadExisting(input){
+  var file = input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var text = e.target.result;
+      // Extract JSON from "const SITE = {...};"
+      var match = text.match(/const\s+SITE\s*=\s*(\{[\s\S]*\})\s*;?\s*$/);
+      if(!match) match = text.match(/(\{[\s\S]*\})/);
+      if(!match){ alert('Could not parse the file. Make sure it\'s a valid data.js'); return; }
+      var d;
+      try {
+        // Files downloaded from this editor are JSON and use this quick path.
+        d = JSON.parse(match[1]);
+      } catch(jsonError) {
+        // The original starter data.js uses comments, trailing commas and
+        // template-text paragraphs. It is still a normal portfolio data file,
+        // so support it as well when the owner selects it from their computer.
+        d = Function('"use strict"; return (' + match[1] + ');')();
+      }
+
+      fillEditor(d);
+
+      alert('Loaded successfully! Review the fields and make your changes.');
+    } catch(err){
+      alert('Error loading file: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+</script>
+</body>
+</html>
