@@ -35,9 +35,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content
 #chip-canvas{position:absolute;inset:0;width:100%;height:100%}
 .hero-fade{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 62% 55% at 70% 50%,transparent 25%,var(--bg) 92%),linear-gradient(to bottom,rgba(11,14,20,.5),transparent 28%,transparent 70%,var(--bg))}
 .hero-inner{position:relative;z-index:2;max-width:1180px;margin:0 auto;width:100%}
-.signal-readout{position:absolute;right:0;bottom:8%;width:230px;padding:15px 16px;background:rgba(14,19,32,.54);border:1px solid rgba(76,141,255,.28);border-radius:12px;backdrop-filter:blur(12px);box-shadow:0 18px 44px rgba(0,0,0,.2);font-family:var(--m);pointer-events:none;transform:perspective(600px) rotateY(-8deg) rotateX(3deg)}
-.signal-readout .sr-top{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.12em;color:var(--ac)}.signal-readout .sr-dot{width:6px;height:6px;border-radius:50%;background:#73a8ff;box-shadow:0 0 12px #73a8ff;animation:blink 1.6s infinite}.signal-readout svg{display:block;width:100%;height:44px;margin:8px 0}.signal-readout path{fill:none;stroke:var(--ac);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:180;animation:signal 3.6s ease-in-out infinite}.signal-readout small{color:var(--dm);font-size:9px;letter-spacing:.08em}@keyframes signal{0%,100%{stroke-dashoffset:180;opacity:.35}45%,65%{stroke-dashoffset:0;opacity:1}}
-@media(max-width:920px){.signal-readout{display:none}}
 .kicker{display:inline-flex;align-items:center;gap:9px;font-family:var(--m);font-size:12.5px;color:var(--ac);background:var(--ac-s);border:1px solid rgba(76,141,255,.28);padding:7px 14px;border-radius:100px;margin-bottom:26px}
 .kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--ac);animation:blink 2.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
@@ -161,11 +158,6 @@ footer b{color:var(--wh);font-weight:600}
   <canvas id="chip-canvas" aria-hidden="true"></canvas>
   <div class="hero-fade"></div>
   <div class="hero-inner">
-    <div class="signal-readout" aria-hidden="true">
-      <div class="sr-top"><span>ECE / LIVE SIGNAL</span><i class="sr-dot"></i></div>
-      <svg viewBox="0 0 220 44" preserveAspectRatio="none"><path d="M0 25 H22 L31 12 L42 34 L56 18 L69 25 H94 L104 5 L115 39 L127 20 H149 L159 14 L171 30 L183 25 H220"/></svg>
-      <small>RF · FPGA · EMBEDDED SYSTEMS</small>
-    </div>
     <span class="kicker"><span class="dot"></span> <span id="heroStatus"></span></span>
     <h1 id="heroTitle"></h1>
     <p class="hero-sub" id="heroSub"></p>
